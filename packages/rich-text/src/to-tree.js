@@ -73,7 +73,7 @@ export function toTree( value, multilineTag, settings ) {
 	const formatsLength = formats.length + 1;
 	const tree = createEmpty( tag );
 
-	append( tree, '' );
+	append( tree, '', 0 );
 
 	for ( let i = 0; i < formatsLength; i++ ) {
 		const character = text.charAt( i );
@@ -95,13 +95,13 @@ export function toTree( value, multilineTag, settings ) {
 
 				const { type, attributes, object } = format;
 				const parent = getParent( pointer );
-				const newNode = append( parent, fromFormat( { type, attributes, object } ) );
+				const newNode = append( parent, fromFormat( { type, attributes, object } ), i );
 
 				if ( isText( pointer ) && getText( pointer ).length === 0 ) {
 					remove( pointer );
 				}
 
-				pointer = append( object ? parent : newNode, '' );
+				pointer = append( object ? parent : newNode, '', i );
 			} );
 		}
 
@@ -117,11 +117,11 @@ export function toTree( value, multilineTag, settings ) {
 
 		if ( character !== '\ufffc' ) {
 			if ( character === '\n' ) {
-				pointer = append( getParent( pointer ), { type: 'br', object: true } );
+				pointer = append( getParent( pointer ), { type: 'br', object: true }, i );
 				// Ensure pointer is text node.
-				pointer = append( getParent( pointer ), '' );
+				pointer = append( getParent( pointer ), '', i );
 			} else if ( ! isText( pointer ) ) {
-				pointer = append( getParent( pointer ), character );
+				pointer = append( getParent( pointer ), character, i );
 			} else {
 				appendText( pointer, character );
 			}
