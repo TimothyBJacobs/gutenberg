@@ -1,51 +1,36 @@
 .wp-block-media-text,
 .wp-block-media-text.aligncenter {
-	display: -ms-grid;
 	display: grid;
 }
 
 .wp-block-media-text {
-	-ms-grid-rows: auto;
 	grid-template-rows: auto;
-	-ms-grid-columns: 50% 1fr;
-	grid-template-columns: 50% auto;
-	-ms-grid-column-align: center;
+	grid-template-columns: 50% 1fr;
 	align-items: center;
 	.has-media-on-the-right {
-		-ms-grid-columns: 1fr 50%;
-		grid-template-columns: auto 50%;
+		grid-template-columns: 1fr 50%;
 	}
 }
 
 .wp-block-media-text .wp-block-media-text__media {
-	-ms-grid-column: 1;
-	-ms-grid-row: 1;
 	grid-column: 1;
 	grid-row: 1;
 	margin: 0;
-	-ms-grid-row-align: center;
 }
 
 .wp-block-media-text .wp-block-media-text__content {
-	-ms-grid-column: 2;
-	-ms-grid-row: 1;
 	grid-column: 2;
 	grid-row: 1;
 	word-break: break-word;
 	padding: 0 8% 0 8%;
-	-ms-grid-row-align: center;
 }
 
 .wp-block-media-text.has-media-on-the-right .wp-block-media-text__media {
-	-ms-grid-column: 2;
-	-ms-grid-row: 1;
 	grid-column: 2;
 	grid-row: 1;
 }
 
 .wp-block-media-text.has-media-on-the-right .wp-block-media-text__content {
-	-ms-grid-column: 1;
-	-ms-grid-row: 1;
 	grid-column: 1;
 	grid-row: 1;
 }

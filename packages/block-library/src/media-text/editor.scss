@@ -1,44 +1,31 @@
 .wp-block-media-text .__resizable_base__ {
-	-ms-grid-column: 1;
-	-ms-grid-column-span: 2;
-	-ms-grid-row: 2;
-	grid-column: 1 / -1;
+	grid-column: 1 / span 2;
 	grid-row: 2;
 }
 
 .wp-block-media-text .editor-media-container__resizer {
-	-ms-grid-column: 1;
-	-ms-grid-row: 1;
 	grid-column: 1;
 	grid-row: 1;
 	align-self: center;
-	-ms-grid-row-align: center;
 	// The resizer sets a inline width but as we are using a grid layout,
 	// we set the width on container.
 	width: 100% !important;
 }
 
 .wp-block-media-text.has-media-on-the-right .editor-media-container__resizer {
-	-ms-grid-column: 2;
-	-ms-grid-row: 1;
 	grid-column: 2;
 	grid-row: 1;
 }
 
 .wp-block-media-text .editor-inner-blocks {
 	word-break: break-word;
-	-ms-grid-column: 2;
-	-ms-grid-row: 1;
 	grid-column: 2;
 	grid-row: 1;
 	text-align: initial;
 	padding: 0 8% 0 8%;
-	-ms-grid-row-align: center;
 }
 
 .wp-block-media-text.has-media-on-the-right .editor-inner-blocks {
-	-ms-grid-column: 1;
-	-ms-grid-row: 1;
 	grid-column: 1;
 	grid-row: 1;
 }
