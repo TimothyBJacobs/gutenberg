@@ -42,6 +42,7 @@ import {
 	replace,
 } from '@wordpress/rich-text';
 import { decodeEntities } from '@wordpress/html-entities';
+import deprecated from '@wordpress/deprecated';
 
 /**
  * Internal dependencies
@@ -78,6 +79,14 @@ export class RichText extends Component {
 
 		if ( multiline === true || multiline === 'p' || multiline === 'li' ) {
 			this.multilineTag = multiline === true ? 'p' : multiline;
+		}
+
+		if ( this.props.onSplit ) {
+			deprecated( 'wp.editor.RichText onSplit prop', {
+				version: '4.2',
+				alternative: 'onInsertAfter and onPasteBlocks',
+				plugin: 'Gutenberg',
+			} );
 		}
 
 		this.onInit = this.onInit.bind( this );
@@ -808,12 +817,6 @@ export class RichText extends Component {
 				html: value,
 				multilineTag: this.multilineTag,
 			} );
-		}
-
-		// Guard for blocks passing `null` in onSplit callbacks. May be removed
-		// if onSplit is revised to not pass a `null` value.
-		if ( value === null ) {
-			return create();
 		}
 
 		return value;
