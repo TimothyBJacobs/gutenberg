@@ -218,6 +218,17 @@ _Parameters_
 -   _recordId_ `Object`: ID of the record.
 -   _options_ `Object`: Saving options.
 
+<a name="saveEditedEntityRecordsAsBatch" href="#saveEditedEntityRecordsAsBatch">#</a> **saveEditedEntityRecordsAsBatch**
+
+Saves the edited entity records as a batch.
+
+_Parameters_
+
+-   _kind_ `string`: The entity kind to save.
+-   _name_ `string`: Optionally, limit to entities with the given name.
+-   _recordIds_ `Array<(number|string)>`: Optionally, limit the record IDs that should be saved.
+-   _options_ `Object`: Saving options.
+
 <a name="saveEntityRecord" href="#saveEntityRecord">#</a> **saveEntityRecord**
 
 Action triggered to save an entity record.
@@ -229,6 +240,7 @@ _Parameters_
 -   _record_ `Object`: Record to be saved.
 -   _options_ `Object`: Saving options.
 -   _options.isAutosave_ `[boolean]`: Whether this is an autosave.
+-   _options.batchId_ `[string]`: If this save should be batched, the batch id.
 
 <a name="undo" href="#undo">#</a> **undo**
 

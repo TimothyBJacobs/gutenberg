@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { castArray, get, isEqual, find } from 'lodash';
+import { castArray, get, isEqual, find, uniqueId } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import { apiFetch, syncSelect } from '@wordpress/data-controls';
+import { dispatch } from '@wordpress/data';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -14,6 +15,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { receiveItems, removeItems, receiveQueriedItems } from './queried-data';
 import { getKindEntities, DEFAULT_ENTITY_KEY } from './entities';
+import { addToBatch, commitBatch } from './controls';
 
 /**
  * Returns an action object used in signalling that authors have been received.
@@ -318,12 +320,13 @@ export function __unstableCreateUndoLevel() {
  * @param {Object}  record                     Record to be saved.
  * @param {Object}  options                    Saving options.
  * @param {boolean} [options.isAutosave=false] Whether this is an autosave.
+ * @param {string}  [options.batchId]          If this save should be batched, the batch id.
  */
 export function* saveEntityRecord(
 	kind,
 	name,
 	record,
-	{ isAutosave = false } = { isAutosave: false }
+	{ isAutosave = false, batchId } = { isAutosave: false }
 ) {
 	const entities = yield getKindEntities( kind );
 	const entity = find( entities, { kind, name } );
@@ -501,11 +504,20 @@ export function* saveEntityRecord(
 				true
 			);
 
-			updatedRecord = yield apiFetch( {
-				path,
-				method: recordId ? 'PUT' : 'POST',
-				data,
-			} );
+			if ( batchId ) {
+				updatedRecord = yield addToBatch( batchId, {
+					path,
+					method: recordId ? 'PUT' : 'POST',
+					data,
+				} );
+			} else {
+				updatedRecord = yield apiFetch( {
+					path,
+					method: recordId ? 'PUT' : 'POST',
+					data,
+				} );
+			}
+
 			yield receiveEntityRecords(
 				kind,
 				name,
@@ -586,6 +598,65 @@ export function* saveEditedEntityRecord( kind, name, recordId, options ) {
 	);
 	const record = { id: recordId, ...edits };
 	yield* saveEntityRecord( kind, name, record, options );
+}
+
+/**
+ * Saves the edited entity records as a batch.
+ *
+ * @param {string} kind The entity kind to save.
+ * @param {string} name Optionally, limit to entities with the given name.
+ * @param {Array<number|string>} recordIds Optionally, limit the record IDs that should be saved.
+ * @param {Object} options Saving options.
+ */
+export function* saveEditedEntityRecordsAsBatch(
+	kind,
+	name = '',
+	recordIds = [],
+	options = {}
+) {
+	const allDirtyRecords = yield syncSelect(
+		'core',
+		'__experimentalGetDirtyEntityRecords'
+	);
+	const dirtyRecords = allDirtyRecords.filter( ( record ) => {
+		if ( kind !== record.kind ) {
+			return false;
+		}
+
+		if ( name && name !== record.kind ) {
+			return false;
+		}
+
+		if ( recordIds.length && ! recordIds.includes( record.key ) ) {
+			return false;
+		}
+
+		return true;
+	} );
+
+	if ( ! dirtyRecords.length ) {
+		return;
+	}
+
+	const batchId = uniqueId( 'batch' );
+
+	for ( const dirtyRecord of dirtyRecords ) {
+		// This is intentionally not done as a yield so we can break out of our waiting loop.
+		// I think this only works because everything up to the addToBatch call in saveEntityRecord
+		// is synchronous. This might be improvable by yielding from saveEditedEntityRecord and looking
+		// for an ADD_TO_BATCH action.
+		dispatch( 'core' ).saveEditedEntityRecord(
+			dirtyRecord.kind,
+			dirtyRecord.name,
+			dirtyRecord.key,
+			{
+				...options,
+				batchId,
+			}
+		);
+	}
+
+	yield commitBatch( batchId );
 }
 
 /**
